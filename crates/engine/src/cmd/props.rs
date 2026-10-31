@@ -1181,6 +1181,8 @@ fn run_rename(s: &mut Session, p: &Value) -> Result<Value> {
             run_dimstyle_rename(s, &json!({ "from": from, "to": to }))?;
         }
         "linetype" | "ltype" => {
+            // Stored trimmed, as -RENAME types it: lookups compare names untrimmed.
+            let to = to.trim().to_string();
             if !rename::valid_name(&to) {
                 return Err(bad("rename", format!("`{to}` is not a valid linetype name")));
             }
@@ -1258,7 +1260,7 @@ mod tests {
             assert!(r.is_err(), "renamed DASHED to {to:?}: {r:?}");
             assert!(s.doc().unwrap().linetype("DASHED").is_some());
         }
-        s.execute("rename", &json!({ "table": "linetype", "from": "DASHED", "to": "DASH2" })).unwrap();
+        s.execute("rename", &json!({ "table": "linetype", "from": "DASHED", "to": " DASH2 " })).unwrap();
         assert!(s.doc().unwrap().linetype("DASH2").is_some());
     }
 
